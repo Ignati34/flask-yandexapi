@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Генератор Логотипов - YandexART</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎨 Генератор Логотипов</h1>
+            <p class="subtitle">Создайте уникальный логотип для вашей компании с помощью ИИ</p>
+        </header>
+
+        <main>
+            <!-- Форма генерации -->
+            <div class="generator-section" id="generatorSection">
+                <div class="form-group">
+                    <label for="companyName">Название компании *</label>
+                    <input 
+                        type="text" 
+                        id="companyName" 
+                        placeholder="Введите название вашей фирмы"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="styleSelect">Выберите стиль логотипа</label>
+                    <select id="styleSelect">
+                        <option value="">-- Без стиля --</option>
+                        {% for key, description in styles.items() %}
+                        <option value="{{ key }}">{{ description }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="customPrompt">Дополнительные пожелания (опционально)</label>
+                    <textarea 
+                        id="customPrompt" 
+                        rows="4" 
+                        placeholder="Опишите дополнительные детали: цвета, элементы, настроение..."
+                    ></textarea>
+                </div>
+
+                <button id="generateBtn" class="btn btn-primary">
+                    <span class="btn-text">Сгенерировать логотип</span>
+                    <span class="loader" style="display: none;"></span>
+                </button>
+            </div>
+
+            <!-- Результат -->
+            <div class="result-section" id="resultSection" style="display: none;">
+                <h2>Ваш логотип</h2>
+                
+                <div class="image-container">
+                    <img id="resultImage" src="" alt="Generated Logo">
+                </div>
+
+                <div class="prompt-display">
+                    <strong>Использованный промпт:</strong>
+                    <p id="usedPrompt"></p>
+                </div>
+
+                <!-- Секция доработки -->
+                <div class="refinement-section">
+                    <h3>🔧 Хотите дополнить логотип?</h3>
+                    <p style="font-size: 0.9rem; color: #64748b; margin-bottom: 15px;">
+                        💡 Дополнение сохранит базовую структуру логотипа и добавит ваши изменения
+                    </p>
+                    <div class="form-group">
+                        <textarea 
+                            id="refinementPrompt" 
+                            rows="3" 
+                            placeholder="Опишите, что нужно изменить (например: 'сделай цвета ярче', 'добавь круглую рамку', 'упрости форму')"
+                        ></textarea>
+                    </div>
+                    <button id="refineBtn" class="btn btn-secondary">
+                        <span class="btn-text">Дополнить логотип</span>
+                        <span class="loader" style="display: none;"></span>
+                    </button>
+                </div>
+
+                <button id="newLogoBtn" class="btn btn-outline">Создать новый логотип</button>
+            </div>
+
+            <!-- Сообщения об ошибках -->
+            <div id="errorMessage" class="error-message" style="display: none;"></div>
+        </main>
+
+        <footer>
+            <p>Powered by <strong>Yandex Art</strong> | © 2026</p>
+        </footer>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
+
