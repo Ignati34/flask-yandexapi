@@ -3,46 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Генератор Логотипов - YandexART</title>
+    <title>Генератор логотипов — YandexART</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>🎨 Генератор Логотипов</h1>
-            <p class="subtitle">Создайте уникальный логотип для вашей компании с помощью ИИ</p>
-        </header>
+    <div class="page-shell">
+        <section class="hero">
+            <div class="hero-badge">YandexART API + Flask</div>
+            <h1>Генератор логотипов</h1>
+            <p>Создавайте, дорабатывайте и скачивайте логотипы через удобный веб-интерфейс.</p>
+            {% if demo_mode %}
+            <div class="demo-notice">Демо-режим включен: приложение работает без API-ключа и генерирует учебный PNG-логотип локально.</div>
+            {% endif %}
+        </section>
 
-        <main>
-            <!-- Форма генерации -->
+        <main class="app-card">
             <div class="generator-section" id="generatorSection">
-                <div class="form-group">
-                    <label for="companyName">Название компании *</label>
-                    <input 
-                        type="text" 
-                        id="companyName" 
-                        placeholder="Введите название вашей фирмы"
-                        required
-                    >
-                </div>
+                <div class="form-grid">
+                    <div class="form-group full">
+                        <label for="companyName">Название компании *</label>
+                        <input type="text" id="companyName" value="AI MarketLab" placeholder="Например: AI MarketLab" required>
+                    </div>
 
-                <div class="form-group">
-                    <label for="styleSelect">Выберите стиль логотипа</label>
-                    <select id="styleSelect">
-                        <option value="">-- Без стиля --</option>
-                        {% for key, description in styles.items() %}
-                        <option value="{{ key }}">{{ description }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
+                    <div class="form-group">
+                        <label for="styleSelect">Стиль логотипа</label>
+                        <select id="styleSelect">
+                            {% for key, description in styles.items() %}
+                            <option value="{{ key }}" {% if key == 'tech' %}selected{% endif %}>{{ description }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
 
-                <div class="form-group">
-                    <label for="customPrompt">Дополнительные пожелания (опционально)</label>
-                    <textarea 
-                        id="customPrompt" 
-                        rows="4" 
-                        placeholder="Опишите дополнительные детали: цвета, элементы, настроение..."
-                    ></textarea>
+                    <div class="form-group">
+                        <label for="logoForm">Форма</label>
+                        <select id="logoForm">
+                            {% for key, description in forms.items() %}
+                            <option value="{{ key }}" {% if key == 'icon_text' %}selected{% endif %}>{{ description }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="form-group full">
+                        <label for="customPrompt">Дополнительные пожелания</label>
+                        <textarea id="customPrompt" rows="4">логотип для AI-агентства, синий и бирюзовый акцент, символ нейросети и роста бизнеса</textarea>
+                    </div>
                 </div>
 
                 <button id="generateBtn" class="btn btn-primary">
@@ -51,51 +55,50 @@
                 </button>
             </div>
 
-            <!-- Результат -->
             <div class="result-section" id="resultSection" style="display: none;">
-                <h2>Ваш логотип</h2>
-                
+                <div class="result-header">
+                    <div>
+                        <p class="eyebrow">Готовый результат</p>
+                        <h2>Ваш логотип</h2>
+                    </div>
+                    <div class="mode-pill" id="modePill">demo</div>
+                </div>
+
                 <div class="image-container">
                     <img id="resultImage" src="" alt="Generated Logo">
                 </div>
 
-                <div class="prompt-display">
-                    <strong>Использованный промпт:</strong>
-                    <p id="usedPrompt"></p>
+                <div class="actions-row">
+                    <a id="downloadBtn" class="btn btn-download" href="#" download="generated-logo.png">Скачать PNG</a>
+                    <button id="newLogoBtn" class="btn btn-outline">Создать новый</button>
                 </div>
 
-                <!-- Секция доработки -->
+                <div class="prompt-display">
+                    <strong>Использованный промпт</strong>
+                    <p id="usedPrompt"></p>
+                    <small id="seedInfo"></small>
+                </div>
+
                 <div class="refinement-section">
-                    <h3>🔧 Хотите дополнить логотип?</h3>
-                    <p style="font-size: 0.9rem; color: #64748b; margin-bottom: 15px;">
-                        💡 Дополнение сохранит базовую структуру логотипа и добавит ваши изменения
-                    </p>
-                    <div class="form-group">
-                        <textarea 
-                            id="refinementPrompt" 
-                            rows="3" 
-                            placeholder="Опишите, что нужно изменить (например: 'сделай цвета ярче', 'добавь круглую рамку', 'упрости форму')"
-                        ></textarea>
-                    </div>
+                    <h3>Доработать текущий логотип</h3>
+                    <p>Опишите изменение. Приложение использует тот же seed, чтобы сохранить базовую структуру.</p>
+                    <textarea id="refinementPrompt" rows="3" placeholder="Например: добавь больше премиальности, усили контраст, сделай символ более технологичным"></textarea>
                     <button id="refineBtn" class="btn btn-secondary">
                         <span class="btn-text">Дополнить логотип</span>
                         <span class="loader" style="display: none;"></span>
                     </button>
                 </div>
-
-                <button id="newLogoBtn" class="btn btn-outline">Создать новый логотип</button>
             </div>
 
-            <!-- Сообщения об ошибках -->
             <div id="errorMessage" class="error-message" style="display: none;"></div>
         </main>
 
         <footer>
-            <p>Powered by <strong>Yandex Art</strong> | © 2026</p>
+            <span>Powered by Flask + Yandex Art API</span>
+            <span>Homework build 2026</span>
         </footer>
     </div>
 
     <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>
-
